@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pessoa {
+  id        Int       @id @default(autoincrement())
+  nome      String
+  email     String?   @unique
+  senha     String
+  cargo     Cargo     // Comprador, Conferente ou Gerente
+  ativo     Boolean @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relações
+  compras      Compra[]
+  conferencias Conferencia[]
+}
+
+enum Cargo {
+  COMPRADOR
+  CONFERENTE
+  GERENTE
+}
+
+model Fornecedor {
+  id        Int       @id @default(autoincrement())
+  nome      String
+  cnpj      String?   @unique
+  createdAt  DateTime  @default(now())
+
+  // relações
+  produtos Produto[]
+  compras  Compra[]
+}
+
+model Produto {
+  id          Int       @id @default(autoincrement())
+  nome        String
+  descricao   String?
+  preco       Float
+  estoque     Int       @default(0)
+  createdAt    DateTime  @default(now())
+
+  fornecedorId Int
+  fornecedor   Fornecedor @relation(fields: [fornecedorId], references: [id])
+
+  // relações
+  compras     CompraProduto[]
+  ajustes     AjusteEstoque[]
+  saidas      SaidaEstoque[]
+}
+
+model Compra {
+  id          Int       @id @default(autoincrement())
+  data        DateTime  @default(now())
+
+  pessoaId    Int
+  pessoa      Pessoa    @relation(fields: [pessoaId], references: [id])
+
+  fornecedorId Int
+  fornecedor   Fornecedor @relation(fields: [fornecedorId], references: [id])
+
+  // relação N:N com produtos
+  produtos CompraProduto[]
+  conferencias Conferencia[]
+}
+
+model CompraProduto {
+  id        Int      @id @default(autoincrement())
+  quantidade Int
+  precoUnitario Float
+
+  compraId  Int
+  produtoId Int
+
+  compra   Compra  @relation(fields: [compraId], references: [id])
+  produto  Produto @relation(fields: [produtoId], references: [id])
+}
+
+model Conferencia {
+  id          Int       @id @default(autoincrement())
+  status      StatusConferencia
+  observacao  String?
+  data        DateTime @default(now())
+
+  pessoaId Int
+  pessoa   Pessoa @relation(fields: [pessoaId], references: [id])
+
+  compraId Int
+  compra   Compra @relation(fields: [compraId], references: [id])
+}
+
+enum StatusConferencia {
+  PENDENTE
+  APROVADO
+  REPROVADO
+}
+
+model AjusteEstoque {
+  id        Int      @id @default(autoincrement())
+  quantidade Int
+  motivo    String
+  data      DateTime @default(now())
+
+  produtoId Int
+  produto   Produto @relation(fields: [produtoId], references: [id])
+}
+
+model SaidaEstoque {
+  id        Int      @id @default(autoincrement())
+  quantidade Int
+  motivo    String
+  data      DateTime @default(now())
+
+  produtoId Int
+  produto   Produto @relation(fields: [produtoId], references: [id])
+}
