@@ -25,19 +25,38 @@ Content-Type: application/json
 
 ###
 
-# @name create_question
-POST {{baseUrl}}/questions
+# @name create_fornecedores
+POST {{baseUrl}}/fornecedores
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
 {
-  "title": "Nova pergunta 2",
-  "content": "Teste"
+  "nome": "Alexandre Fornecedor 1",
+  "cnpj": "512505021000125"
 }
 
 ###
 
-# @name fetch_recent_questions
-GET {{baseUrl}}/questions?page=1
+# @name get_fornecedores
+GET {{baseUrl}}/fornecedores
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name create_fornecedores
+PUT {{baseUrl}}/fornecedores/1
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "nome": "Alexandre Fornecedor 1",
+  "cnpj": "512505021"
+}
+
+###
+
+# @name delete_fornecedores
+DELETE {{baseUrl}}/fornecedores/1
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
